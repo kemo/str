@@ -75,7 +75,7 @@ abstract class Kohana_Str {
 	
 	
 	// Appends a helper to Str
-	public function helper_append($helper)
+	public static function helper_append($helper)
 	{
 		Str::$_helpers[] = $helper;
 	}
