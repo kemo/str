@@ -18,7 +18,6 @@
  * 
  * ====================================================
  *
- * @package 	emag
  * @version 	1.0b
  * @author 		Kemal Delalic <kemal.delalic@gmail.com>
  * 
@@ -55,6 +54,7 @@ abstract class Kohana_Str {
 		
 		foreach (Str::$_helpers as $key => $class)
 		{
+			// @todo	method_exists() vs function_exists() vs is_callable() ?
 			if (method_exists($class, $func))
 			{
 				$this->_value = call_user_func_array(array($class, $func), $args);
@@ -65,6 +65,7 @@ abstract class Kohana_Str {
 		
 		throw new Kohana_Exception('Unknown method called: :m', array(':m'=>'Str::'.$func));
 	}
+	
 	
 	public function __toString()
 	{
