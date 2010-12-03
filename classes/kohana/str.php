@@ -43,6 +43,11 @@ abstract class Kohana_Str {
 	{
 		$this->_value = $string;
 	}
+
+	public static function factory($string)
+	{
+		return new Str($string);
+	}
 	
 	public function __call($func, array $args)
 	{
@@ -65,10 +70,19 @@ abstract class Kohana_Str {
 	{
 		return $this->_value;
 	}
-
-	public static function factory($string)
+	
+	
+	
+	// Appends a helper to Str
+	public function helper_append($helper)
 	{
-		return new Str($string);
+		Str::$_helpers[] = $helper;
+	}
+	
+	// Prepends a helper to Str
+	public static function helper_prepend($helper)
+	{
+		arr_unshift(Str::$_helpers, $helper);
 	}
 	
 	/**
