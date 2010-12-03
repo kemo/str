@@ -6,11 +6,11 @@
  * Usage:
  * 
  * echo $string = Str::factory("This is some text and kemal.delalic@gmail.com is some email")
- * 		->chars()				// HTML::chars()
- *		->reduce_slashes()		// Text::reduce_slashes()
- * 		->plural()			 	// Inflector::plural()
- * 		->limit_words(4)		// Text::limit_words()
- * 		->auto_p(); 			// HTML::auto_p()
+ * 		->chars()			// HTML::chars()
+ *		->reduce_slashes()	// Text::reduce_slashes()
+ * 		->plural()			// Inflector::plural()
+ * 		->limit_words(4)	// Text::limit_words()
+ * 		->auto_p(); 		// HTML::auto_p()
  * 
  * Now the $string contains our Str object but can still be echoed as a normal string
  * 
