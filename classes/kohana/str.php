@@ -63,6 +63,13 @@ abstract class Kohana_Str {
 			}
 		}
 		
+		if (function_exists($func))
+		{
+			$this->_value = call_user_func_array($func, $args);
+			
+			return $this;
+		}
+		
 		throw new Kohana_Exception('Unknown method called: :m', array(':m'=>'Str::'.$func));
 	}
 	
