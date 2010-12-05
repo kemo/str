@@ -25,6 +25,40 @@
  */
 abstract class Kohana_Str {
 
+	protected $_value;
+	
+	public function __construct($string)
+	{
+		Str::init();
+		
+		$this->_value = $string;
+	}
+	
+	public function __call($name, array $args)
+	{
+		array_unshift($args, $this->_value);
+		
+		if ($method = Str::find_method($name))
+		{
+			$this->_value = call_user_func_array($method, $args);
+			
+			return $this;
+		}
+		
+		// If this method reaches end, throw an exception
+		throw new Kohana_Exception('Unknown method called: :m', array(':m'=>'Str::'.$name));
+	}
+	
+	
+	public function __toString()
+	{
+		return $this->_value;
+	}
+
+	
+	/* Class stuff */
+	protected static $_cache;
+	
 	/**
 	 * Contains the list of helpers which contain the called method, ordered by priorities
 	 * Can be another object instance or classname (for static methods)
@@ -35,51 +69,42 @@ abstract class Kohana_Str {
 		'HTML',
 		'Inflector',
 	);
-
-	protected $_value;
 	
-	public function __construct($string)
-	{
-		$this->_value = $string;
-	}
-
 	public static function factory($string)
 	{
 		return new Str($string);
 	}
 	
-	public function __call($func, array $args)
+	public static function find_method($func)
 	{
-		array_unshift($args, $this->_value);
+		// If method has already been traced
+		if (isset(Str::$_cache[$func]))
+		{
+			return Str::$_cache[$func];
+		}
 		
+		// Try finding the requested method in the list of helpers
 		foreach (Str::$_helpers as $key => $class)
 		{
 			// @todo	method_exists() vs function_exists() vs is_callable() ?
 			if (method_exists($class, $func))
 			{
-				$this->_value = call_user_func_array(array($class, $func), $args);
+				Str::$_cache[$func] = array($class, $func);
 				
-				return $this;
+				return array($class, $func);
 			}
 		}
 		
+		// If not returned by now, try finding the function with name specified
 		if (function_exists($func))
 		{
-			$this->_value = call_user_func_array($func, $args);
+			Str::$_cache[$func] = $func;
 			
-			return $this;
+			return $func;
 		}
 		
-		throw new Kohana_Exception('Unknown method called: :m', array(':m'=>'Str::'.$func));
+		return FALSE;
 	}
-	
-	
-	public function __toString()
-	{
-		return $this->_value;
-	}
-	
-	
 	
 	// Appends a helper to Str
 	public static function helper_append($helper)
@@ -93,8 +118,26 @@ abstract class Kohana_Str {
 		arr_unshift(Str::$_helpers, $helper);
 	}
 	
+	// Removes a helper
+	public static function helper_remove($helper)
+	{
+		foreach (Str::$_helpers as $k => $v)
+		{
+			if ($v === $helper) unset(Str::$_helpers[$k]);
+		}
+	}
+	
+	// Initializes cache, if needed
+	protected static function init()
+	{
+		if (Kohana::$caching and Str::$_cache === NULL)
+		{
+			Str::$_cache = (array) Kohana::cache('Str()');
+		}
+	}
+	
 	/**
-	 * Add Str methods here
+	 * Add Str overriding methods below
 	 */
 }
 // End Str
