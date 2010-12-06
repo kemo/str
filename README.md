@@ -1,7 +1,7 @@
 # Kohana 3 Str Helper
 ### Author: Kemal Delalic { twitter.com/delalick }
 
-Sick of this kind of code:
+Sick of code looking like this
 
 	$text = HTML::chars($topic->text);
 	$text = HTML::smile($text);
@@ -18,12 +18,12 @@ Sick of this kind of code:
 this class enables us to do all above with:
 
 	$text = Str::factory($topic->text)
-		->chars()
-		->smile()
-		->nl2br()
-		->limit_words(5)
-		->bb();
+		->chars()			// HTML::chars()
+		->smile()			// HTML::smile()
+		->nl2br()			// nl2br()
+		->limit_words(5)	// Text::limit_words()
+		->bb();				// HTML::bb()
 		
 	echo $text;
 
-	echo $text->plural();
+	echo $text->plural();	// Inflector::plural()
