@@ -3,28 +3,27 @@
 
 Sick of this kind of code:
 
-$text = HTML::chars($topic->text);
-$text = HTML::smile($text);
-$text = nl2br($text);
-$text = Text::limit_words($text, 5);
-$text = HTML::bb($text);
+	$text = HTML::chars($topic->text);
+	$text = HTML::smile($text);
+	$text = nl2br($text);
+	$text = Text::limit_words($text, 5);
+	$text = HTML::bb($text);
 
-echo $text;
+	echo $text;
 
-$text = Inflector::plural($text);
+	$text = Inflector::plural($text);
 
-echo $text;
+	echo $text;
 
 this class enables us to do all above with:
 
-`
-$text = Str::factory($topic->text)
-	->chars()
-	->smile()
-	->nl2br()
-	->limit_words(5)
-	->bb();
-	
-echo $text;
+	$text = Str::factory($topic->text)
+		->chars()
+		->smile()
+		->nl2br()
+		->limit_words(5)
+		->bb();
+		
+	echo $text;
 
-echo $text->plural();
+	echo $text->plural();
