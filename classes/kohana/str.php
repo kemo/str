@@ -46,7 +46,10 @@ abstract class Kohana_Str {
 		}
 		
 		// If this method reaches end, throw an exception
-		throw new Kohana_Exception('Unknown method called: :m', array(':m'=>'Str::'.$name));
+		throw new Kohana_Exception('Unknown method called: !class::!method', array(
+			'!class'	=> __CLASS__,
+			'!method'	=> $name,
+		));
 	}
 	
 	
@@ -56,7 +59,9 @@ abstract class Kohana_Str {
 	}
 
 	
-	/* Class stuff */
+	/**
+	 * @var array	list of functions callable on Str objects 
+	 */
 	protected static $_cache;
 	
 	/**
@@ -73,6 +78,8 @@ abstract class Kohana_Str {
 	public static function factory($string)
 	{
 		return new Str($string);
+		
+		Str::$_cache;
 	}
 	
 	public static function find_method($func)
@@ -81,6 +88,14 @@ abstract class Kohana_Str {
 		if (isset(Str::$_cache[$func]))
 		{
 			return Str::$_cache[$func];
+		}
+		
+		// If not returned by now, try finding the function with name specified
+		if (function_exists($func))
+		{
+			Str::$_cache[$func] = $func;
+			
+			return $func;
 		}
 		
 		// Try finding the requested method in the list of helpers
@@ -95,14 +110,6 @@ abstract class Kohana_Str {
 			}
 		}
 		
-		// If not returned by now, try finding the function with name specified
-		if (function_exists($func))
-		{
-			Str::$_cache[$func] = $func;
-			
-			return $func;
-		}
-		
 		return FALSE;
 	}
 	
@@ -115,7 +122,7 @@ abstract class Kohana_Str {
 	// Prepends a helper to Str
 	public static function helper_prepend($helper)
 	{
-		arr_unshift(Str::$_helpers, $helper);
+		array_unshift(Str::$_helpers, $helper);
 	}
 	
 	// Removes a helper
