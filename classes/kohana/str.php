@@ -1,5 +1,4 @@
 <?php defined('SYSPATH') or die('No direct script access.');
-
 /**
  * String class
  * 
@@ -78,8 +77,6 @@ abstract class Kohana_Str {
 	public static function factory($string)
 	{
 		return new Str($string);
-		
-		Str::$_cache;
 	}
 	
 	public static function find_method($func)
@@ -88,14 +85,6 @@ abstract class Kohana_Str {
 		if (isset(Str::$_cache[$func]))
 		{
 			return Str::$_cache[$func];
-		}
-		
-		// If not returned by now, try finding the function with name specified
-		if (function_exists($func))
-		{
-			Str::$_cache[$func] = $func;
-			
-			return $func;
 		}
 		
 		// Try finding the requested method in the list of helpers
@@ -108,6 +97,14 @@ abstract class Kohana_Str {
 				
 				return array($class, $func);
 			}
+		}
+		
+		// If not returned by now, try finding the function with name specified
+		if (function_exists($func))
+		{
+			Str::$_cache[$func] = $func;
+			
+			return $func;
 		}
 		
 		return FALSE;
