@@ -1,9 +1,9 @@
 # Kohana 3 Str Helper
 ### Author: Kemal Delalic { twitter.com/delalick }
 
-Sick of code looking like this: (?)
+Instead of always repeating code like:
 
-	$text = __("some.i18n.key");
+	$text = __('Something to translate');
 	$text = HTML::chars($text);
 	$text = HTML::smile($text);
 	$text = nl2br($text);
@@ -16,9 +16,14 @@ Sick of code looking like this: (?)
 
 	echo $text;
 
-this class enables us to do all above with:
+this class enables us to do the above with:
 
-	$text = Str::factory("some.i18n.key")->__()->chars()->smile()->nl2br()->limit_words(5)->bb();
+	$text = Str::factory(__('Something to translate'))
+		->chars()
+		->smile()
+		->nl2br()
+		->limit_words(5)
+		->bb();
 		
 	echo $text;
 
