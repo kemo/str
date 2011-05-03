@@ -29,7 +29,7 @@ abstract class Kohana_Str {
 	 */
 	protected static $_cache;
 	
-	/**	 * 
+	/**
 	 * @var	array list of helpers ordered by priorities
 	 */
 	protected static $_helpers = array
@@ -72,24 +72,20 @@ abstract class Kohana_Str {
 			return Str::$_cache[$func];
 		}
 		
-		// Try finding the requested method in the list of helpers
+		// Try finding the requested method in the list of class helpers
 		foreach (Str::$_helpers as $key => $class)
 		{
 			// @todo method_exists() vs is_callable() ?
 			if (method_exists($class, $func))
 			{
-				Str::$_cache[$func] = array($class, $func);
-				
-				return array($class, $func);
+				return Str::$_cache[$func] = $class.'::'.$func;
 			}
 		}
 		
 		// If not returned by now, try finding the function with name specified
 		if (function_exists($func))
 		{
-			Str::$_cache[$func] = $func;
-			
-			return $func;
+			return Str::$_cache[$func] = $func;
 		}
 		
 		return FALSE;
