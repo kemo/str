@@ -20,6 +20,14 @@ class Str {
 	const DEFAULT_PAD_STRING = ' ';
 	const DEFAULT_PAD_TYPE   = \STR_PAD_RIGHT;
 	const DEFAULT_TRIM_CHARACTER_MASK = " \t\n\r\0\x0B";
+	const ENCODING_UTF8 = 'UTF-8';
+
+	/**
+	 * String encoding
+	 * 
+	 * @var string
+	 */
+	protected $encoding;
 
 	/**
 	 * Method map object
@@ -71,6 +79,28 @@ class Str {
 	}
 
 	/**
+	 * Gets the current string encoding
+	 *
+	 * @return string       Encoding
+	 * @throws StrException If encoding can't be detected
+	 */
+	final public function encoding()
+	{
+		if ($this->encoding === NULL)
+		{
+			if (function_exists('mb_detect_encoding'))
+				return $this->encoding = mb_detect_encoding($this->value());
+
+			if (function_exists('utf8_compliant') AND utf8_compliant($this->value()))
+				return $this->encoding = static::ENCODING_UTF8;
+
+			throw new StrException(sprintf('Could not detect string encoding : %s', $this->value()));
+		}
+
+		return $this->encoding;
+	}
+
+	/**
 	 * Returns the current value of this string
 	 * 
 	 * @return string
@@ -92,6 +122,27 @@ class Str {
 		return $this->values;
 	}
 
+	/**
+	 * Used for setting default parameter values.
+	 * 
+	 * If the $passed value is NULL, this will return the $default
+	 * otherwise $passed will be returned back.
+	 * 
+	 * @param  mixed  $passed
+	 * @param  mixed  $default
+	 * @return mixed
+	 */
+	protected function _default($passed, $default)
+	{
+		return $passed === NULL ? $default : $passed;
+	}
+
+	/**
+	 * Sets a new value for current string
+	 * 
+	 * @param  string $value String value to set
+	 * @return self          Chainable
+	 */
 	protected function _set($value)
 	{
 		$this->values[] = $value;
@@ -108,7 +159,9 @@ class Str {
 	 */
 	public function add_cslashes($charlist)
 	{
-		return $this->_set(\addcslashes($this->value(), $charlist));
+		return $this->_set(
+			\addcslashes($this->value(), $charlist)
+		);
 	}
 
 	/**
@@ -140,6 +193,83 @@ class Str {
 		return $this->_set(
 			\chunk_split($this->value(), $length, $end)
 		);
+	}
+
+	/**
+	 * Binary safe string comparison
+	 * [!!] Not chainable
+	 *
+	 * Return values:
+	 *  < 0 if this string is less than target string
+	 *  > 0 if this string is greater than target string
+	 * == 0 if both strings are equal
+	 * 
+	 * @link   http://php.net/manual/en/function.strcmp.php
+	 * @param  Str    $target to compare current string to
+	 * @return int    
+	 */
+	public function compare(Str $target)
+	{
+		return \strcmp($this->value(), $target->value());
+	}
+
+	/**
+	 * Binary safe case-insensitive string comparison
+	 * [!!] Not chainable
+	 *
+	 * Return values:
+	 * < 0 if this string is less than target string
+	 * > 0 if this string is greater than target string
+	 * == 0 if strings are equal
+	 * 
+	 * @link   http://php.net/manual/en/function.strcasecmp.php
+	 * @param  string $target to compare current string to
+	 * @return int    
+	 */
+	public function compare_insensitive($target)
+	{
+		return \strcasecmp($this->value(), (string) $target);
+	}
+
+	/**
+	 * Locale based case sensitive comparison
+	 * [!!] Not chainable
+	 *
+	 * Return values:
+	 * < 0 if this string is less than target string
+	 * > 0 if this string is greater than target string
+	 * == 0 if strings are equal
+	 * 
+	 * @link   http://php.net/manual/en/function.strcoll.php
+	 * @param  string    $target to compare current string to
+	 * @return int    
+	 */
+	public function compare_locale($target)
+	{
+		return \strcoll($this->value(), (string) $target);
+	}
+
+	/**
+	 * Appends another string to this string
+	 * 
+	 * @param  string $string String to concatonate
+	 * @return self           Chainable
+	 */
+	public function concat($string)
+	{
+		return $this->_set($this->value().$string);
+	}
+
+	/**
+	 * Does current string contain a subtring?
+	 * [!!] Not chainable
+	 * 
+	 * @param  string $substring to search for
+	 * @return boolean
+	 */
+	public function contains($substring)
+	{
+		return $this->position((string) $substring, 0) !== FALSE;
 	}
 
 	/**
@@ -210,15 +340,24 @@ class Str {
 	 * @param  string $character_mask List of characters to trim (optional)
 	 * @return self                   Chainable
 	 */
-	public function ltrim($character_mask = NULL)
+	public function left_trim($character_mask = NULL)
 	{
-		if ($character_mask === NULL)
-		{
-			$character_mask = static::DEFAULT_TRIM_CHARACTER_MASK;
-		}
+		$character_mask = $this->_default($character_mask, static::DEFAULT_TRIM_CHARACTER_MASK);
 
 		return $this->_set(
 			\ltrim($this->value(), $character_mask)
+		);
+	}
+
+	/**
+	 * Converts new lines to <br /> elements
+	 * 
+	 * @return self Chainable
+	 */
+	public function nl2br()
+	{
+		return $this->_set(
+			\nl2br($this->value())
 		);
 	}
 
@@ -233,19 +372,25 @@ class Str {
 	 */
 	public function pad($pad_length, $pad_string = NULL, $pad_type = NULL)
 	{
-		if ($pad_string === NULL)
-		{
-			$pad_string = static::DEFAULT_PAD_STRING;
-		}
-
-		if ($pad_type === NULL)
-		{
-			$pad_type = static::DEFAULT_PAD_TYPE;
-		}
+		$pad_string = $this->_default($pad_string, static::DEFAULT_PAD_STRING);
+		$pad_type   = $this->_default($pad_type,   static::DEFAULT_PAD_TYPE);
 
 		return $this->_set(
 			\str_pad($this->value(), $pad_length, $pad_string, $pad_type)
 		);
+	}
+
+	/**
+	 * Find the position of the first occurrence of a substring in a string
+	 * [!!] Not chainable
+	 * 
+	 * @param  string  $substring
+	 * @param  integer $offset offset to start from
+	 * @return mixed   Integer position on success, FALSE otherwise
+	 */
+	public function position($substring, $offset = 0)
+	{
+		return \strpos($this->value(), (string) $substring, $offset);
 	}
 
 	/**
@@ -283,6 +428,19 @@ class Str {
 	}
 
 	/**
+	 * Reverses current string
+	 *
+	 * @link   http://php.net/manual/en/function.strrev.php
+	 * @return self Chainable
+	 */
+	public function reverse()
+	{
+		return $this->_set(
+			\strrev($this->value())
+		);
+	}
+
+	/**
 	 * Perform the rot13 transform on current string
 	 * 
 	 * @link   http://php.net/explode
@@ -301,15 +459,29 @@ class Str {
 	 * @param  string $character_mask List of characters to trim (optional)
 	 * @return self                   Chainable
 	 */
-	public function rtrim($character_mask = NULL)
+	public function right_trim($character_mask = NULL)
 	{
-		if ($character_mask === NULL)
+		$character_mask = $this->_default($character_mask, static::DEFAULT_TRIM_CHARACTER_MASK);
+
+		if (is_array($character_mask))
 		{
-			$character_mask = static::DEFAULT_TRIM_CHARACTER_MASK;
+			$character_mask = \implode('', $character_mask);
 		}
 
 		return $this->_set(
 			\rtrim($this->value(), $character_mask)
+		);
+	}
+
+	/**
+	 * Randomly shuffles the string
+	 * 
+	 * @return self Chainable
+	 */
+	public function shuffle()
+	{
+		return $this->_set(
+			\str_shuffle($this->value())
 		);
 	}
 
@@ -328,7 +500,35 @@ class Str {
 	}
 
 	/**
-	 *  Strip whitespace (or other characters) from the beginning and end of the string
+	 * Tokenizes current string
+	 *
+	 * @link   http://php.net/manual/en/function.strtok.php
+	 * @param  string $token The delimiter used when splitting up str.
+	 * @return self          Chainable
+	 */
+	public function tokenize($token)
+	{
+		return $this->_set(
+			\strtok($this->value(), $token)
+		);
+	}
+
+	/**
+	 * Translate characters or replace substrings
+	 *
+	 * @link   http://php.net/strtr
+	 * @param  array  $replace_pairs Array in the form array('from' => 'to', ...)
+	 * @return self                  Chainable
+	 */
+	public function translate(array $replace_pairs)
+	{
+		return $this->_set(
+			\strtr($this->value(), $replace_pairs)
+		);
+	}
+
+	/**
+	 * Strips whitespace (or other characters) from the beginning and end of the string
 	 *
 	 * @link   http://php.net/manual/en/function.trim.php
 	 * @param  string  $character_mask  List of characters to trim (optional)
@@ -336,13 +536,39 @@ class Str {
 	 */
 	public function trim($character_mask = NULL)
 	{
-		if ($character_mask === NULL)
+		$character_mask = $this->_default($character_mask, static::DEFAULT_TRIM_CHARACTER_MASK);
+
+		if (is_array($character_mask))
 		{
-			$character_mask = static::DEFAULT_TRIM_CHARACTER_MASK;
+			$character_mask = \implode('', $character_mask);
 		}
 
 		return $this->_set(
 			\trim($this->value(), $character_mask)
 		);
+	}
+
+	/**
+	 * Counts the number of words inside string. 
+	 * [!!] Not chainable
+	 * 
+	 * @param  string  $charlist Optional list of additional characters which will be considered as 'word'
+	 * @return int
+	 */
+	public function word_count($charlist = NULL)
+	{
+		return \str_word_count($this->value(), 0, $charlist);
+	}
+
+	/**
+	 * Returns the list of words inside string
+	 * [!!] Not chainable
+	 * 
+	 * @param  string  $charlist Optional list of additional characters which will be considered as 'word'
+	 * @return array   Array in [position => word] format
+	 */
+	public function words($charlist = NULL)
+	{
+		return \str_word_count($this->value(), 2, $charlist);
 	}
 }
