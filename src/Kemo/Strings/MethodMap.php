@@ -16,11 +16,12 @@ class MethodMap {
 	 * @param  string $method_name
 	 * @param  array  $arguments 
 	 * @return string
+	 * @throws \BadMethodCallException If the called method isn't mapped yet
 	 */
 	public function call(Str $str, $method_name, array $arguments)
 	{
-		if ( ! isset($this->methods[$method_name]))
-			 throw new \LogicException('No method "'.$method_name.'" mapped in this map');
+		if ( ! $this->has_method($method_name))
+			 throw new \BadMethodCallException(sprintf('No method "%s" mapped', $method_name));
 		
 		$desc = $this->methods[$method_name];
 
