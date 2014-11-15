@@ -1,10 +1,24 @@
 <?php namespace Kemo\Strings;
-
+/**
+ * Object string class
+ *
+ * Allows manipulating strings as objects like in ... normal languages. Example:
+ *
+ * echo (new Str('bar '))
+ *     ->replace(['bar' => 'foobar'])
+ *     ->rtrim();
+ *
+ * Also allows adding custom "method maps" which can be injected via the constructor.
+ * The constructor can be overriden to pull this from a DI container, obviously.
+ *
+ * @author  Kemal Delalic <kemal.delalic@gmail.com>
+ */
 class Str {
 
 	const DEFAULT_CHUNK_END    = "\r\n";
 	const DEFAULT_CHUNK_LENGTH = 76;
-
+	const DEFAULT_PAD_STRING = ' ';
+	const DEFAULT_PAD_TYPE   = \STR_PAD_RIGHT;
 	const DEFAULT_TRIM_CHARACTER_MASK = " \t\n\r\0\x0B";
 
 	/**
@@ -27,7 +41,7 @@ class Str {
 	 * @param string                  $string to represent
 	 * @param \Kemo\Strings\MethodMap $map of methods - optional injection
 	 */
-	final public function __construct($string, MethodMap $map = NULL)
+	public function __construct($string, MethodMap $map = NULL)
 	{
 		$this->map      = isset($map) ? $map : new MethodMap;
 		$this->values[] = $string;
@@ -43,7 +57,7 @@ class Str {
 	 */
 	final public function __call($method, array $arguments)
 	{
-		return $this->_set($this->map->call($this, $method, $arguments));
+		return $this->map->call($this, $method, $arguments);
 	}
 
 	/**
@@ -175,11 +189,12 @@ class Str {
 	}
 
 	/**
-	 * [ireplace description]
-	 *
+	 * Case-insensitive version of Str::replace()
+	 * 
 	 * @link   http://php.net/str_ireplace
 	 * @param  array  $replacements List of search -> replace pairs
 	 * @return self (chainable)
+	 * @see    \Kemo\Strings\Str::replace()
 	 */
 	public function ireplace(array $replacements)
 	{
@@ -192,8 +207,8 @@ class Str {
 	 * Strip whitespace (or other characters) from the beginning of a string
 	 *
 	 * @link   http://php.net/ltrim
-	 * @param  [type] $character_mask [description]
-	 * @return [type]                 [description]
+	 * @param  string $character_mask List of characters to trim (optional)
+	 * @return self                   Chainable
 	 */
 	public function ltrim($character_mask = NULL)
 	{
@@ -208,16 +223,26 @@ class Str {
 	}
 
 	/**
-	 * [pad description]
+	 * Pad the string to a certain length with another string
 	 * 
 	 * @link   http://php.net/str_pad
-	 * @param  [type] $pad_length [description]
-	 * @param  string $pad_string [description]
-	 * @param  [type] $pad_type   [description]
-	 * @return [type]             [description]
+	 * @param  int    $pad_length If the value of pad_length is negative, less than, or equal to the length of current string, no padding takes place
+	 * @param  string $pad_string String to pad the current string with
+	 * @param  int    $pad_type   Optional, can be STR_PAD_RIGHT, STR_PAD_LEFT, or STR_PAD_BOTH. If pad_type is not specified it is assumed to be STR_PAD_RIGHT
+	 * @return self               Chainable
 	 */
-	public function pad($pad_length, $pad_string = ' ', $pad_type = \STR_PAD_RIGHT)
+	public function pad($pad_length, $pad_string = NULL, $pad_type = NULL)
 	{
+		if ($pad_string === NULL)
+		{
+			$pad_string = static::DEFAULT_PAD_STRING;
+		}
+
+		if ($pad_type === NULL)
+		{
+			$pad_type = static::DEFAULT_PAD_TYPE;
+		}
+
 		return $this->_set(
 			\str_pad($this->value(), $pad_length, $pad_string, $pad_type)
 		);
@@ -228,7 +253,7 @@ class Str {
 	 *
 	 * @link   http://php.net/str_repeat
 	 * @param  int    $multiplier How many times to repeat the string
-	 * @return self (chainable)
+	 * @return self               Chainable
 	 */
 	public function repeat($multiplier)
 	{
@@ -241,9 +266,9 @@ class Str {
 	 * Replaces the occurences of keys with their values
 	 * 
 	 * @link   http://php.net/str_replace
-	 * @param  array  $replacements List of search => replace pairs
+	 * @param  array  $replacements List of [search => replace] pairs
 	 * @param  int    $count        If passed, this will be set to the number of replacements performed.
-	 * @return self (chainable)
+	 * @return self                 Chainable
 	 */
 	public function replace(array $replacements, & $count = NULL)
 	{
@@ -261,7 +286,7 @@ class Str {
 	 * Perform the rot13 transform on current string
 	 * 
 	 * @link   http://php.net/explode
-	 * @return self (chainable)
+	 * @return self              Chainable
 	 */
 	public function rot13()
 	{
@@ -273,8 +298,8 @@ class Str {
 	/**
 	 * Strip whitespace (or other characters) from the end
 	 * 
-	 * @param  string $character_mask 
-	 * @return self (chainable)
+	 * @param  string $character_mask List of characters to trim (optional)
+	 * @return self                   Chainable
 	 */
 	public function rtrim($character_mask = NULL)
 	{
@@ -293,7 +318,7 @@ class Str {
 	 * 
 	 * @link   http://php.net/manual/en/function.strip-tags.php
 	 * @param  string  $allowable_tags List of allowed tags
-	 * @return self    (chainable)
+	 * @return self                    Chainable
 	 */
 	public function strip_tags($allowable_tags)
 	{
@@ -303,11 +328,11 @@ class Str {
 	}
 
 	/**
-	 * [trim description]
+	 *  Strip whitespace (or other characters) from the beginning and end of the string
 	 *
 	 * @link   http://php.net/manual/en/function.trim.php
-	 * @param  string  $character_mask
-	 * @return self    (chainable)
+	 * @param  string  $character_mask  List of characters to trim (optional)
+	 * @return self                     Chainable
 	 */
 	public function trim($character_mask = NULL)
 	{
