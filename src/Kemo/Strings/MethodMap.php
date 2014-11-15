@@ -7,7 +7,7 @@ class MethodMap {
 	 * 
 	 * @var \Kemo\Strings\MethodDescription[]
 	 */
-	protected $method_map = array();
+	protected $methods = array();
 
 	/**
 	 * Calls a method on the passed string object and returns the resulting value
@@ -19,12 +19,23 @@ class MethodMap {
 	 */
 	public function call(Str $str, $method_name, array $arguments)
 	{
-		if ( ! isset($this->method_map[$method_name]))
+		if ( ! isset($this->methods[$method_name]))
 			 throw new \LogicException('No method "'.$method_name.'" mapped in this map');
 		
-		$desc = $this->method_map[$method_name];
+		$desc = $this->methods[$method_name];
 
 		return call_user_func_array($desc->callback(), $this->_call_arguments($str->value(), $arguments, $desc->value_position()));
+	}
+
+	/**
+	 * Checks if there is a method in this map by name
+	 * 
+	 * @param  string  $method_name
+	 * @return boolean
+	 */
+	public function has_method($method_name)
+	{
+		return isset($this->methods[$method_name]);
 	}
 
 	/**
@@ -45,7 +56,7 @@ class MethodMap {
 			$callback = $method;
 		}
 
-		$this->method_map[$method] = new MethodDescription($value_position, $callback);
+		$this->methods[$method] = new MethodDescription($value_position, $callback);
 
 		return $this;
 	}
