@@ -138,6 +138,20 @@ class Str {
 	}
 
 	/**
+	 * Allows using array character masks in trim methods
+	 * 
+	 * @param  string|array $character_mask Character mask to format (if array)
+	 * @return string                       Character mask usable by trim functions
+	 */
+	protected function _format_character_mask($character_mask)
+	{	
+		if (is_array($character_mask))
+			return \implode('', $character_mask);
+
+		return $character_mask;
+	}
+
+	/**
 	 * Sets a new value for current string
 	 * 
 	 * @param  string $value String value to set
@@ -340,9 +354,10 @@ class Str {
 	 * @param  string $character_mask List of characters to trim (optional)
 	 * @return self                   Chainable
 	 */
-	public function left_trim($character_mask = NULL)
+	public function ltrim($character_mask = NULL)
 	{
 		$character_mask = $this->_default($character_mask, static::DEFAULT_TRIM_CHARACTER_MASK);
+		$character_mask = $this->_format_character_mask($character_mask);
 
 		return $this->_set(
 			\ltrim($this->value(), $character_mask)
@@ -459,14 +474,10 @@ class Str {
 	 * @param  string $character_mask List of characters to trim (optional)
 	 * @return self                   Chainable
 	 */
-	public function right_trim($character_mask = NULL)
+	public function rtrim($character_mask = NULL)
 	{
 		$character_mask = $this->_default($character_mask, static::DEFAULT_TRIM_CHARACTER_MASK);
-
-		if (is_array($character_mask))
-		{
-			$character_mask = \implode('', $character_mask);
-		}
+		$character_mask = $this->_format_character_mask($character_mask);
 
 		return $this->_set(
 			\rtrim($this->value(), $character_mask)
@@ -537,11 +548,7 @@ class Str {
 	public function trim($character_mask = NULL)
 	{
 		$character_mask = $this->_default($character_mask, static::DEFAULT_TRIM_CHARACTER_MASK);
-
-		if (is_array($character_mask))
-		{
-			$character_mask = \implode('', $character_mask);
-		}
+		$character_mask = $this->_format_character_mask($character_mask);
 
 		return $this->_set(
 			\trim($this->value(), $character_mask)
@@ -592,4 +599,5 @@ class Str {
 	{
 		return \str_word_count($this->value(), 2, $charlist);
 	}
+
 }
