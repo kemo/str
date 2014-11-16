@@ -549,6 +549,22 @@ class Str {
 	}
 
 	/**
+	 * Undoes the last $steps operations
+	 * 
+	 * @param  integer $steps How many steps to undo
+	 * @return self           Chainable
+	 */
+	public function undo($steps = 1)
+	{
+		for ($i = 1; $i <= $steps, count($this->values) > 1; $i++)
+		{
+			array_pop($this->values);
+		}
+
+		return $this;
+	}
+
+	/**
 	 * Counts the number of words inside string. 
 	 * [!!] Not chainable
 	 * 
