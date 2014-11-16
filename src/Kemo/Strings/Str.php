@@ -187,8 +187,8 @@ class Str {
 	 */
 	public function chunk_split($length = NULL, $end = NULL)
 	{
-		$end    = isset($end)    ? $end    : static::DEFAULT_CHUNK_END;
-		$length = isset($length) ? $length : static::DEFAULT_CHUNK_LENGTH;
+		$end    = $this->_default($end,    static::DEFAULT_CHUNK_END);
+		$length = $this->_default($length, static::DEFAULT_CHUNK_LENGTH);
 
 		return $this->_set(
 			\chunk_split($this->value(), $length, $end)
