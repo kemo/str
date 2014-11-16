@@ -556,7 +556,12 @@ class Str {
 	 */
 	public function undo($steps = 1)
 	{
-		for ($i = 1; $i <= $steps, count($this->values) > 1; $i++)
+		if ( ! is_int($steps))
+			throw new \InvalidArgumentException('Str::undo() must be given an integer');
+
+		$steps = min($steps, count($this->values) - 1);
+		
+		for ($i = 1; $i <= $steps; $i++)
 		{
 			array_pop($this->values);
 		}
