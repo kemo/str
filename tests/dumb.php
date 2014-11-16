@@ -1,10 +1,9 @@
 <?php
-// because I'm too lazy to write real tests at this point
+// because I'm too lazy to write real tests at the moment
+if ( ! file_exists('../vendor/autoload.php'))
+	throw new \Exception('Please run `composer install` first.');
 
-include '../src/Kemo/Strings/Str.php';
-include '../src/Kemo/Strings/StrException.php';
-include '../src/Kemo/Strings/MethodMap.php';
-include '../src/Kemo/Strings/MethodDescription.php';
+require '../vendor/autoload.php';
 
 $str = new \Kemo\Strings\Str('Some random string');
 echo $str->concat('( this was appended) #1').PHP_EOL;
