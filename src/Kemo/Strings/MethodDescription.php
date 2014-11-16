@@ -5,8 +5,8 @@ class MethodDescription {
 	/**
 	 * Creates a method description object
 	 * 
-	 * @param int             $value_position 
-	 * @param callable|string $callback
+	 * @param int             $value_position Value argument position in callback
+	 * @param callable|string $callback       Function name are callable
 	 */
 	public function __construct($value_position, $callback)
 	{
@@ -30,7 +30,7 @@ class MethodDescription {
 	 * @param  array  $arguments
 	 * @return 
 	 */
-	public function arguments_count(array $arguments)
+	public function argumentsCount(array $arguments)
 	{
 		return max(count($arguments), $this->value_position);
 	}
@@ -40,7 +40,7 @@ class MethodDescription {
 	 * 
 	 * @return int
 	 */
-	public function value_position()
+	public function valuePosition()
 	{
 		return $this->value_position;
 	}

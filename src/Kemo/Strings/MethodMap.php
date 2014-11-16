@@ -20,12 +20,12 @@ class MethodMap {
 	 */
 	public function call(Str $str, $method_name, array $arguments)
 	{
-		if ( ! $this->has_method($method_name))
+		if ( ! $this->hasMethod($method_name))
 			 throw new \BadMethodCallException(sprintf('No method "%s" mapped', $method_name));
 		
 		$desc = $this->methods[$method_name];
 
-		return call_user_func_array($desc->callback(), $this->_call_arguments($str->value(), $arguments, $desc->value_position()));
+		return call_user_func_array($desc->callback(), $this->_callArguments($str->value(), $arguments, $desc->valuePosition()));
 	}
 
 	/**
@@ -34,7 +34,7 @@ class MethodMap {
 	 * @param  string  $method_name
 	 * @return boolean
 	 */
-	public function has_method($method_name)
+	public function hasMethod($method_name)
 	{
 		return isset($this->methods[$method_name]);
 	}
@@ -70,7 +70,7 @@ class MethodMap {
 	 * @param  int    $value_position 
 	 * @return array  Callable arguments
 	 */
-	protected function _call_arguments($value, array $arguments, $value_position)
+	protected function _callArguments($value, array $arguments, $value_position)
 	{
 		// Are we missing some arguments?
 		if ($value_position > count($arguments) + 1)
@@ -81,10 +81,10 @@ class MethodMap {
 		if ($arg_count === 0)
 			return array($value);
 
-		return $this->_create_arguments($value, $arguments, $value_position, $arg_count);
+		return $this->_createArguments($value, $arguments, $value_position, $arg_count);
 	}
 
-	protected function _create_arguments($value, array $arguments, $value_position, $arg_count)
+	protected function _createArguments($value, array $arguments, $value_position, $arg_count)
 	{
 		$params = array();
 

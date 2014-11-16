@@ -15,12 +15,13 @@
  */
 class Str {
 
-	const DEFAULT_CHUNK_END    = "\r\n";
-	const DEFAULT_CHUNK_LENGTH = 76;
-	const DEFAULT_PAD_STRING = ' ';
-	const DEFAULT_PAD_TYPE   = \STR_PAD_RIGHT;
+	const DEFAULT_CHUNK_END           = "\r\n";
+	const DEFAULT_CHUNK_LENGTH        = 76;
+	const DEFAULT_PAD_STRING          = ' ';
+	const DEFAULT_PAD_TYPE            = \STR_PAD_RIGHT;
 	const DEFAULT_TRIM_CHARACTER_MASK = " \t\n\r\0\x0B";
-	const ENCODING_UTF8 = 'UTF-8';
+
+	const ENCODING_UTF8               = 'UTF-8';
 
 	/**
 	 * String encoding
@@ -51,8 +52,9 @@ class Str {
 	 */
 	public function __construct($string, MethodMap $map = NULL)
 	{
-		$this->map      = isset($map) ? $map : new MethodMap;
-		$this->values[] = $string;
+		$this->map = isset($map) ? $map : new MethodMap;
+		
+		$this->_set($string);
 	}
 
 	/**
@@ -86,15 +88,15 @@ class Str {
 	 */
 	final public function encoding()
 	{
-		if ($this->encoding === NULL)
+		if ( ! isset($this->encoding))
 		{
 			if (function_exists('mb_detect_encoding'))
-				return $this->encoding = mb_detect_encoding($this->value());
+				return $this->encoding = \mb_detect_encoding($this->value());
 
-			if (function_exists('utf8_compliant') AND utf8_compliant($this->value()))
+			if (function_exists('utf8_compliant') AND \utf8_compliant($this->value()))
 				return $this->encoding = static::ENCODING_UTF8;
 
-			throw new StrException(sprintf('Could not detect string encoding : %s', $this->value()));
+			throw new StrException(\sprintf('Could not detect string encoding : %s', $this->value()));
 		}
 
 		return $this->encoding;
@@ -143,7 +145,7 @@ class Str {
 	 * @param  string|array $character_mask Character mask to format (if array)
 	 * @return string                       Character mask usable by trim functions
 	 */
-	protected function _format_character_mask($character_mask)
+	protected function _formatCharacterMask($character_mask)
 	{	
 		if (is_array($character_mask))
 			return \implode('', $character_mask);
@@ -161,6 +163,9 @@ class Str {
 	{
 		$this->values[] = $value;
 
+		// Reset encoding
+		unset($this->encoding);
+
 		return $this;
 	}
 
@@ -171,7 +176,7 @@ class Str {
 	 * @param  string $charlist
 	 * @return self (chainable)
 	 */
-	public function add_cslashes($charlist)
+	public function addCslashes($charlist)
 	{
 		return $this->_set(
 			\addcslashes($this->value(), $charlist)
@@ -184,7 +189,7 @@ class Str {
 	 * @link   http://php.net/manual/en/function.addslashes.php
 	 * @return self (chainable)
 	 */
-	public function add_slashes()
+	public function addSlashes()
 	{
 		return $this->_set(
 			\addslashes($this->value())
@@ -199,7 +204,7 @@ class Str {
 	 * @param  string $end      The line ending sequence.
 	 * @return self             (chainable)
 	 */
-	public function chunk_split($length = NULL, $end = NULL)
+	public function chunkSplit($length = NULL, $end = NULL)
 	{
 		$end    = $this->_default($end,    static::DEFAULT_CHUNK_END);
 		$length = $this->_default($length, static::DEFAULT_CHUNK_LENGTH);
@@ -240,7 +245,7 @@ class Str {
 	 * @param  string $target to compare current string to
 	 * @return int    
 	 */
-	public function compare_insensitive($target)
+	public function compareInsensitive($target)
 	{
 		return \strcasecmp($this->value(), (string) $target);
 	}
@@ -258,7 +263,7 @@ class Str {
 	 * @param  string    $target to compare current string to
 	 * @return int    
 	 */
-	public function compare_locale($target)
+	public function compareLocale($target)
 	{
 		return \strcoll($this->value(), (string) $target);
 	}
@@ -301,7 +306,7 @@ class Str {
 	 * @param  integer $mode 
 	 * @return mixed
 	 */
-	public function count_chars($mode = 0)
+	public function countChars($mode = 0)
 	{
 		return \count_chars($this->value(), $mode);
 	}
@@ -343,7 +348,7 @@ class Str {
 	public function ireplace(array $replacements)
 	{
 		return $this->_set(
-			\str_ireplace(array_keys($replacements), array_values($replacements), $this->value())
+			\str_ireplace(\array_keys($replacements), \array_values($replacements), $this->value())
 		);
 	}
 
@@ -357,7 +362,7 @@ class Str {
 	public function ltrim($character_mask = NULL)
 	{
 		$character_mask = $this->_default($character_mask, static::DEFAULT_TRIM_CHARACTER_MASK);
-		$character_mask = $this->_format_character_mask($character_mask);
+		$character_mask = $this->_formatCharacterMask($character_mask);
 
 		return $this->_set(
 			\ltrim($this->value(), $character_mask)
@@ -433,12 +438,7 @@ class Str {
 	public function replace(array $replacements, & $count = NULL)
 	{
 		return $this->_set(
-			\str_replace(
-				array_keys($replacements), 
-				array_values($replacements), 
-				$this->value(), 
-				$count
-			)
+			\str_replace(\array_keys($replacements), \array_values($replacements), $this->value(), $count)
 		);
 	}
 
@@ -477,7 +477,7 @@ class Str {
 	public function rtrim($character_mask = NULL)
 	{
 		$character_mask = $this->_default($character_mask, static::DEFAULT_TRIM_CHARACTER_MASK);
-		$character_mask = $this->_format_character_mask($character_mask);
+		$character_mask = $this->_formatCharacterMask($character_mask);
 
 		return $this->_set(
 			\rtrim($this->value(), $character_mask)
@@ -503,7 +503,7 @@ class Str {
 	 * @param  string  $allowable_tags List of allowed tags
 	 * @return self                    Chainable
 	 */
-	public function strip_tags($allowable_tags)
+	public function stripTags($allowable_tags)
 	{
 		return $this->_set(
 			\strip_tags($this->value(), $allowable_tags)
@@ -548,7 +548,7 @@ class Str {
 	public function trim($character_mask = NULL)
 	{
 		$character_mask = $this->_default($character_mask, static::DEFAULT_TRIM_CHARACTER_MASK);
-		$character_mask = $this->_format_character_mask($character_mask);
+		$character_mask = $this->_formatCharacterMask($character_mask);
 
 		return $this->_set(
 			\trim($this->value(), $character_mask)
@@ -563,14 +563,14 @@ class Str {
 	 */
 	public function undo($steps = 1)
 	{
-		if ( ! is_int($steps))
+		if ( ! \is_int($steps))
 			throw new \InvalidArgumentException('Str::undo() must be given an integer');
 
-		$steps = min($steps, count($this->values) - 1);
+		$steps = \min($steps, \count($this->values) - 1);
 		
 		for ($i = 1; $i <= $steps; $i++)
 		{
-			array_pop($this->values);
+			\array_pop($this->values);
 		}
 
 		return $this;
@@ -583,7 +583,7 @@ class Str {
 	 * @param  string  $charlist Optional list of additional characters which will be considered as 'word'
 	 * @return int
 	 */
-	public function word_count($charlist = NULL)
+	public function wordCount($charlist = NULL)
 	{
 		return \str_word_count($this->value(), 0, $charlist);
 	}
