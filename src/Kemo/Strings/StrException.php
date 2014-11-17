@@ -1,3 +1,6 @@
 <?php namespace Kemo\Strings;
 
-class StrException extends \Exception {}
+class StrException extends \Exception
+{
+
+}
