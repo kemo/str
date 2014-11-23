@@ -237,13 +237,13 @@ class Str
      *
      * @link   http://php.net/manual/en/function.strcmp.php
      *
-     * @param  Str $target to compare current string to
+     * @param  Str|string $target to compare current string to
      *
      * @return int
      */
-    public function compare(Str $target)
+    public function compare($target)
     {
-        return \strcmp($this->value(), $target->value());
+        return \strcmp($this->value(), (string) $target);
     }
 
     /**
@@ -264,26 +264,6 @@ class Str
     public function compareInsensitive($target)
     {
         return \strcasecmp($this->value(), (string) $target);
-    }
-
-    /**
-     * Locale based case sensitive comparison
-     * [!!] Not chainable
-     *
-     * Return values:
-     * < 0 if this string is less than target string
-     * > 0 if this string is greater than target string
-     * == 0 if strings are equal
-     *
-     * @link   http://php.net/manual/en/function.strcoll.php
-     *
-     * @param  string $target to compare current string to
-     *
-     * @return int
-     */
-    public function compareLocale($target)
-    {
-        return \strcoll($this->value(), (string) $target);
     }
 
     /**
@@ -315,22 +295,27 @@ class Str
      * Return information about characters used in a string
      * [!!] Not chainable
      *
-     * Depending on mode count_chars() returns one of the following:
-     * 0 - an array with the byte-value as key and the frequency of every byte as value.
-     * 1 - same as 0 but only byte-values with a frequency greater than zero are listed.
-     * 2 - same as 0 but only byte-values with a frequency equal to zero are listed.
-     * 3 - a string containing all unique characters is returned.
-     * 4 - a string containing all not used characters is returned.
-     *
      * @link   http://php.net/count_chars
      *
-     * @param  integer $mode
+     * @param  boolean $ascii Return ASCII representations?
      *
      * @return mixed
      */
-    public function countChars($mode = 0)
+    public function countChars($ascii = FALSE)
     {
-        return \count_chars($this->value(), $mode);
+        $chars = \count_chars($this->value(), 1);
+
+        if ($ascii === TRUE)
+            return $chars;
+
+        foreach ($chars as $ord => $count)
+        {
+            unset($chars[$ord]);
+
+            $chars[chr($ord)] = $count;
+        }
+
+        return $chars;
     }
 
     /**
@@ -622,6 +607,19 @@ class Str
         }
 
         return $this;
+    }
+
+    /**
+     * Returns a string containing all unique characters (in current string)
+     * [!!] Not chainable
+     *
+     * @link   http://php.net/count_chars
+     *
+     * @return mixed
+     */
+    public function uniqueChars()
+    {
+        return \count_chars($this->value(), 3);
     }
 
     /**
