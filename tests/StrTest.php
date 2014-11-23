@@ -253,6 +253,31 @@ class StrTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals($expected, $result);
     }
 
+    public function providerImplode()
+    {
+        return array(
+            array(' ', array('foo'), 'foo'),
+            array('_-_', array('foo','bar'), 'foo_-_bar'),
+            array('!', array('foo','is','bar','sometimes'), 'foo!is!bar!sometimes'),
+            array(' ', array('but','Bar','is','never','Foo'), 'but Bar is never Foo'),
+        );
+    }
+
+    /**
+     * @covers \Kemo\Strings\Str::implode
+     * @dataProvider providerImplode
+     * @param $string
+     * @param $elements
+     * @param $expected
+     */
+    public function testImplode($string, array $elements, $expected)
+    {
+        $str = new Str($string);
+        $result = $str->implode($elements);
+
+        $this->assertEquals($expected, $result);
+    }
+
 
     public function providerUniqueChars()
     {
