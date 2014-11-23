@@ -1,0 +1,4 @@
+# Composer packages
+composer.lock
+vendor/*
+.idea/*

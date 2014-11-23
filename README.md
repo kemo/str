@@ -1,30 +1,25 @@
-# Kohana 3 Str Helper
-### Author: Kemal Delalic { twitter.com/delalick }
+# PHP string object class
+### The missing PHP string library
+[![Author](http://img.shields.io/badge/author-delalick-blue.svg)](http://twitter.com/delalick)
 
-Instead of always repeating code like:
+This will make living with PHP strings easier by;
+- providing a simple chained API to string operations
+- not mixing up the needle haystack stuff
+- allowing you to extend and add your own methods in seconds
 
-	$text = __('Something to translate');
-	$text = HTML::chars($text);
-	$text = HTML::smile($text);
-	$text = nl2br($text);
-	$text = Text::limit_words($text, 5);
-	$text = HTML::bb($text);
+```php
+$text = 'Something to translate';
+$text = strtr($text, $translation);
+$text = htmlspecialchars($text);
+$text = nl2br($text);
+echo $text;
+```
 
-	echo $text;
+Str objects allow you this;
 
-	$text = Inflector::plural($text);
-
-	echo $text;
-
-this class enables us to do the above with:
-
-	$text = Str::factory(__('Something to translate'))
-		->chars()
-		->smile()
-		->nl2br()
-		->limit_words(5)
-		->bb();
-		
-	echo $text;
-
-	echo $text->plural();	// Inflector::plural()
+```php
+echo (new Str('Something to translate'))
+	->tr($translation)
+	->chars()
+	->nl2br();
+```
