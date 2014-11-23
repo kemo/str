@@ -9,9 +9,6 @@
  *     ->replace(['bar' => 'foobar'])
  *     ->rtrim();
  *
- * Also allows adding custom "method maps" which can be injected via the constructor.
- * The constructor can be overriden to pull this from a DI container, obviously.
- *
  * @author  Kemal Delalic <kemal.delalic@gmail.com>
  */
 class Str
@@ -33,13 +30,6 @@ class Str
     protected $encoding;
 
     /**
-     * Method map object
-     *
-     * @var \Kemo\Strings\MethodMap
-     */
-    protected $map;
-
-    /**
      * Contains the list of values that have been changed in this object
      *
      * @var array
@@ -49,13 +39,10 @@ class Str
     /**
      * Creates a Str object
      *
-     * @param string                  $string to represent
-     * @param \Kemo\Strings\MethodMap $map of methods - optional injection
+     * @param string $string to represent
      */
-    public function __construct($string, MethodMap $map = null)
+    public function __construct($string)
     {
-        $this->map = isset($map) ? $map : new MethodMap;
-
         $this->_set($string);
     }
 
@@ -70,7 +57,7 @@ class Str
      */
     final public function __call($method, array $arguments)
     {
-        return $this->map->call($this, $method, $arguments);
+        throw new StrException(sprintf('Invalid method "%s" called', $method));
     }
 
     /**
