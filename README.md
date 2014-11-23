@@ -1,7 +1,11 @@
 # PHP string object class
-### Author: Kemal Delalic { twitter.com/delalick }
+### The missing PHP string library
+[![Author](http://img.shields.io/badge/author-delalick-blue.svg)](http://twitter.com/delalick)
 
-Instead of writing shit like this;
+This will make living with PHP strings easier by;
+- providing a simple chained API to string operations
+- not mixing up the needle haystack stuff
+- allowing you to extend and add your own methods in seconds
 
 ```php
 $text = 'Something to translate';
