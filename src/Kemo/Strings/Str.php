@@ -57,7 +57,7 @@ class Str
      */
     final public function __call($method, array $arguments)
     {
-        throw new StrException(sprintf('Invalid method "%s" called', $method));
+        throw new \BadMethodCallException(sprintf('Invalid method "%s" called', $method));
     }
 
     /**
@@ -465,9 +465,15 @@ class Str
     }
 
     /**
-     * Perform the rot13 transform on current string
+     * Perform the ROT13 transform on current string
      *
-     * @link   http://php.net/explode
+     * The ROT13 encoding simply shifts every letter
+     * by 13 places in the alphabet while leaving non-alpha
+     * characters untouched. Encoding and decoding are done by the
+     * same function, passing an encoded string as argument will
+     * return the original version.
+     *
+     * @link   http://php.net/str_rot13
      * @return self              Chainable
      */
     public function rot13()
@@ -515,26 +521,10 @@ class Str
      *
      * @return self                    Chainable
      */
-    public function stripTags($allowable_tags)
+    public function stripTags($allowable_tags = NULL)
     {
         return $this->_set(
                     \strip_tags($this->value(), $allowable_tags)
-        );
-    }
-
-    /**
-     * Tokenizes current string
-     *
-     * @link   http://php.net/manual/en/function.strtok.php
-     *
-     * @param  string $token The delimiter used when splitting up str.
-     *
-     * @return self          Chainable
-     */
-    public function tokenize($token)
-    {
-        return $this->_set(
-                    \strtok($this->value(), $token)
         );
     }
 
